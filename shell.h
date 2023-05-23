@@ -1,96 +1,91 @@
 #ifndef SHELL_H
 #define SHELL_H
 
+/*libraries*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <signal.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <stdbool.h>
 
-#define BUFSIZE 1024
+/*string_handlers*/
+char *_strdup(char *str);
+char *_strchr(char *str, int chr);
+int _strlen(const char *str);
+int _strcmp(char *s1, char *s2);
+int _strncmp(const char *first, const char *second, int n);
+
+/*command_handler*/
+char *_getpath(void);
+char **token_maker(char *str);
+void exec_cmd(char *c, char **cmd);
+char *pathappend(char *path, char *cmd);
+char *try_paths(char **p, char *cmd);
+
+/*built-ins*/
+void env_builtin(void);
+void exiter(char **cmd, char *b);
+int is_builtin(char **cmd, char *b);
+void prompt_printer(void);
+void sighandle(int n);
+
+/*helper function*/
+int check_type(char **cmd, char *b);
+void free_cmds(char **m);
+
+
+
+
+/*environment variables*/
+extern __sighandler_t signal(int __sig, __sighandler_t __handler);
 extern char **environ;
-/**
-  * struct environ_type - linked list from PATH
-  * @str: path in the format /usr/bin
-  * @len: length of the string
-  * @next: points to the next node
-  */
-typedef struct environ_type
-{
-	char *str;
-	unsigned int len;
-	struct environ_type *next;
-} env_t;
 
 /**
-  * struct builtin_commands - stuct for function pointers to builtin commands
-  * @cmd_str: commands (env, cd, alias, history)
-  * @fun: function
-  */
-typedef struct builtin_commands
+ * struct builtins - Handles builtins
+ * @env: First member
+ * @exit: Second member
+ *
+ * Description: builtin commands
+ */
+struct builtins
 {
-	char *cmd_str;
-	int (*fun)();
-} builtin_cmds_t;
+	char *env;
+	char *exit;
 
-/* In builtins.c */
-int (*is_builtin(char *cmd))();
-int _exit_with_grace(char **tokens, env_t *linkedlist_path, char *buffer);
-int _env(char **tokens, env_t *environment);
-int _cd(char **tokens);
-
-/* In builtins2.c */
-int _setenv_usr(char **tokens);
-int _alias(void);
-int _history(void);
-int bowie(void);
-
-/* in environment.c */
-env_t *list_from_path(void);
-env_t *environ_linked_list(void);
-char *search_os(char *cmd, env_t *linkedlist_path);
-
-/* in env_operations.c */
-char *_getenv(const char *name);
-int _setenv(const char *name, const char *value, int overwrite);
-
-/* in linked_list_operations.c */
-env_t *add_node(env_t **head, char *str, unsigned int len);
-void free_list(env_t *head);
+} builtins;
 
 
-/* In executor.c */
-void executor(char *argv[], env_t *linkedlist_path);
 
-/* In memory_management.c */
-void *_realloc(char *ptr, unsigned int old_size, unsigned int new_size);
-void _memset(char *str, int fill, int n);
-void _memcpy(char *dest, char *src, unsigned int bytes);
+/**
+ * struct info - Status info struct
+ * @final_exit: First member
+ * @ln_count: Second member
+ *
+ * Description: Used in error handling
+ */
+struct info
+{
+	int final_exit;
+	int ln_count;
+} info;
 
-/* In parser.c */
-char *_getline(int file);
-char **parser(char *str, char *delim);
-void reader(void);
 
-/* In strtok.c */
-/* Other functions in this file do not need to be referenced elsewhere. */
-char *_strtok_r(char *str, char *delim, char **saveptr);
+/**
+ * struct flags - Holds flags
+ * @interactive: First member
+ *
+ * Description: used to handle
+ * boolean switches
+ */
+struct flags
+{
+	bool interactive;
+} flags;
 
-/* In str_operations.c */
-int _strlen(char *s);
-int _strncmp(char *s1, char *s2, size_t bytes);
-char *_strdup(char *src);
-char *_strcat_realloc(char *dest, char *src);
-int _atoi(char *s);
-int _isdigit(int c);
-
-/* In str_operations2.c */
-unsigned int word_count(char *str);
-void simple_print(const char *str);
-int _strlen_const(const char *s);
-size_t print_list(const env_t *h);
 
 #endif
