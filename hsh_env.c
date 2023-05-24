@@ -23,7 +23,7 @@ int hsh_env(char **arg_list, env_t *envp)
 }
 /**
  * hsh_env_help - builtin help printout for env
- * Return: Always 0
+ * Return: Always return 0
  */
 int hsh_env_help(void)
 {
